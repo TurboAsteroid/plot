@@ -112,8 +112,10 @@ class CalcInput {
                 if (this._checkValue(c)) {
                     queue.push(parseFloat(c));
                 } else {
-                    console.warn('Не верный формат числа');
-                    return false;
+                    return {
+                        result: false,
+                        message: 'Wrong number format'
+                    };
                 }
             } else if (this._isIdent(c)) {
                 queue.push(c);
@@ -149,8 +151,10 @@ class CalcInput {
                     }
                 }
                 if (!pe) {
-                    console.warn("пропущена скобка");
-                    return false;
+                    return {
+                        result: false,
+                        message: 'Miss parenthesis'
+                    };
                 }
                 stack.pop();
 
@@ -158,20 +162,26 @@ class CalcInput {
                     queue.push(stack.pop());
                 }
             } else {
-                console.warn('неизвестный символ');
-                return false;
+                return {
+                    result: false,
+                    message: 'Unknown symbol'
+                };
             }
         }
         while (stack.length > 0) {
             let sc = stack[stack.length - 1];
             if (sc === '(' || sc === ')') {
-                console.warn("пропущена скобка");
-                return false;
+                return {
+                    result: false,
+                    message: 'Miss parenthesis'
+                };
             }
             queue.push(stack.pop());
         }
         this.queue = queue.slice();
-        return true;
+        return {
+            result: true
+        };
     }
     compute(varValues) {
         let queue = this.queue.slice();
@@ -182,15 +192,19 @@ class CalcInput {
                 stack.push(c);
             } else if (this._isIdent(c)) {
                 if (!(c in varValues) || c === undefined) {
-                    console.warn("Не задано значение переменной");
-                    return false;
+                    return {
+                        result: false,
+                        message: 'Variable do not exist'
+                    };
                 } else {
                     stack.push(varValues[c]);
                 }
             } else if (this._isOperator(c) || this._isFunction(c)) {
                 if (stack.length < this._argCount(c)) {
-                    console.warn("Недостаточно данных");
-                    return false;
+                    return {
+                        result: false,
+                        message: 'Wrong equation'
+                    };
                 }
                 let args = [];
                 for (let i = 0; i < this._argCount(c); i++) {
@@ -200,15 +214,23 @@ class CalcInput {
                 let result = this._executeOperation(c, args);
                 stack.push(result);
             } else {
-                console.warn("неизвестный оператор")
-                return false;
+
+                return {
+                    result: false,
+                    message: 'Unknown operator'
+                };
             }
         }
         if (stack.length === 1) {
-            return stack[0];
+            return {
+                result: true,
+                value: stack[0]
+            };
         } else {
-            console.warn("Ошибочка")
-            return false;
+            return {
+                result: false,
+                message: 'Wrong equation'
+            };
         }
     }
 }

@@ -5,7 +5,8 @@ class WolframPlot extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            src: ''
+            src: '',
+            err: ''
         }
     }
 
@@ -31,19 +32,35 @@ class WolframPlot extends React.Component {
             rangeEnd: this.props.rangeEnd
         };
         let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-        let request = await fetch(`${serverUrl}plot?${queryString}`);
-        let response = await request.json();
-        if (response.error) {
-            console.error(response.error);
+        try {
+            let request = await fetch(`${serverUrl}plot?${queryString}`);
+            let response = await request.json();
+            this.setState({
+                src: response.src,
+                err: ''
+            });
+        } catch (e) {
+            this.setState({
+                src: '',
+                err: "no connection to WolframAlpha"
+            });
         }
-        this.setState({src: response.src});
     }
 
     render() {
-        if (this.state.src)
+        if (this.state.src && this.state.src !== '')
             return (
-                <img src={this.state.src} alt=""/>
+                <div>
+                    <div>Wolfram plot</div>
+                    <img src={this.state.src} alt=""/>
+                </div>
             );
+        if (this.state.err && this.state.err !== '') {
+            return <div>
+                <div>Wolfram plot</div>
+                <div>{this.state.err}</div>
+            </div>
+        }
         return <div/>
     }
 }

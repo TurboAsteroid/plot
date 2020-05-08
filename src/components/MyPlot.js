@@ -15,13 +15,14 @@ class MyPlot extends React.Component {
 
     componentDidUpdate() {
         let calc = new CalcInput(this.props.equation);
+        this.props.checkEquasion(calc.parseResult);
         if (
-            !calc.parseResult ||
+            !calc.parseResult.result ||
             this.props.rangeStart === "" ||
             this.props.rangeEnd === "" ||
             parseFloat(this.props.rangeStart) >= parseFloat(this.props.rangeEnd)
         ) {
-            console.log("error");
+            return;
         } else {
             const canvas = this.canvas;
             const ctx = canvas.getContext("2d");
@@ -34,10 +35,12 @@ class MyPlot extends React.Component {
             let maxX = parseFloat(this.props.rangeEnd);
             let zoomX = Math.abs(maxX - minX) / (this.state.width - 20); // масштаб
             for (let i = minX; i < parseInt(maxX); i += parseFloat(zoomX)) {
-                let y = calc.compute({x: i});
-                if (y === false) {
+                let calculate = calc.compute({x: i});
+                if (calculate.result === false) {
+                    this.props.checkEquasion(calculate);
                     return;
                 }
+                let y = calculate.value;
                 if (!minY || y < minY) {
                     minY = y;
                 }
@@ -53,6 +56,8 @@ class MyPlot extends React.Component {
                 minY -= 24;
                 maxY += 24;
             }
+
+            this.props.checkEquasion({result: true});
 
             let zoomY = Math.abs(maxY - minY) / (this.state.height - 20); // масштаб
 
@@ -92,7 +97,10 @@ class MyPlot extends React.Component {
 
     render() {
         return (
-            <canvas ref={this.setCanvasRef} width={this.state.width} height={this.state.height}/>
+            <div>
+                <div>My plot</div>
+                <canvas ref={this.setCanvasRef} width={this.state.width} height={this.state.height}/>
+            </div>
         );
     }
 }
