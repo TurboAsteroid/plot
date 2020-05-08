@@ -24,6 +24,9 @@ const styles = {
     },
     tooltip: {
         color: '#666'
+    },
+    hide: {
+        visibility: 'hidden'
     }
 };
 
@@ -37,6 +40,7 @@ class App extends React.Component {
             rangeEnd: '',
             equationTooltip: '',
             checkEquation: false,
+            errors: true
         };
         this.handleChange = this.handleChange.bind(this);
     }
@@ -61,6 +65,9 @@ class App extends React.Component {
         return true;
     }
     checkEquation = (calculate) => {
+        if (this.state.equation === '') {
+            return;
+        }
         if (calculate.result === false && calculate.message !== this.state.equationTooltip) {
             this.setState({
                 equationTooltip: calculate.message,
@@ -129,16 +136,17 @@ class App extends React.Component {
                         helperText="Must be grater then Start"
                     />
                     <br/>
-
-                    <MyPlot
-                        equation={this.state.equation}
-                        rangeStart={this.state.rangeStart}
-                        rangeEnd={this.state.rangeEnd}
-                        checkEquasion={this.checkEquation}/>
-                    <WolframPlot
-                        equation={this.state.equation}
-                        rangeStart={this.state.rangeStart}
-                        rangeEnd={this.state.rangeEnd}/>
+                    <div className={(!this.state.checkEquation && !this.checkRange())?'':classes.hide}>
+                        <MyPlot
+                            equation={this.state.equation}
+                            rangeStart={this.state.rangeStart}
+                            rangeEnd={this.state.rangeEnd}
+                            checkEquasion={this.checkEquation}/>
+                        <WolframPlot
+                            equation={this.state.equation}
+                            rangeStart={this.state.rangeStart}
+                            rangeEnd={this.state.rangeEnd}/>
+                    </div>
 
                 </CardContent>
             </Card>
