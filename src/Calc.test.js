@@ -140,10 +140,15 @@ let examples = [
 for (let example of examples) {
     test(example.about, () => {
         let calc = new CalcInput(example.equation);
-        expect(calc.parseResult).toEqual(example.parse);
+        expect(calc.parseResult.result).toEqual(example.parse);
         for (let value of example.values) {
             let calcResult = calc.compute({x: value[0]});
-            expect(calcResult).toEqual(value[1]);
+            if (calcResult.result) {
+                expect(calcResult.value).toEqual(value[1]);
+            } else {
+                expect(calcResult.result).toEqual(value[1]);
+            }
+
         }
     });
 
